@@ -4,8 +4,9 @@
   
   # The USER FLOW  OF THIS project is available at -: https://www.figma.com/board/kO9SuRLQRdHdVBOV5qKRSQ/User-Flow?node-id=0-1&t=7G8xn1Q1TvsOUBJX-1
 
+  # ALL TEMPLATES OF THIS PROJECT :- https://www.figma.com/board/oIacQk0EAQpm3KQUvDEDKn/Echoes-Web-Template?node-id=0-1&t=oGiVLs0CUHtZN2cJ-1
   
-  ## Live deployment- https://crowdera-new.vercel.app/
+  # Live deployment- https://crowdera-new.vercel.app/
 
   ## Running the code
 
