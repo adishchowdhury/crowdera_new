@@ -30,7 +30,7 @@ export function ProfileScreen({ onSelectCause }: ProfileScreenProps) {
   return (
     <div className="w-full min-h-screen bg-[#FAFAF7] pb-32">
       {/* Header */}
-      <div className="pt-24 px-6 md:px-12 lg:px-24 max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-20">
+      <div className="pt-24 md:pt-36 px-6 md:px-12 lg:px-24 max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-8 mb-20">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="w-24 h-24 md:w-32 md:h-32 rounded-[28px] bg-gradient-to-br from-[#2C5530] to-[#142A17] flex items-center justify-center text-4xl md:text-5xl font-serif text-white shadow-[0_16px_40px_rgba(44,85,48,0.2)] border-2 border-white overflow-hidden">
             {user?.photoURL ? (

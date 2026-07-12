@@ -9,7 +9,7 @@ import { AuthScreen } from './components/AuthScreen'
 import { TemplateScreen } from './components/TemplateScreen'
 import type { Cause, Screen } from './data'
 import { CAUSES } from './data'
-import { Home, History, User, Heart } from 'lucide-react'
+import { Home, Compass, Clock, User, History, Heart } from 'lucide-react'
 import { AppleCursor } from './components/AppleCursor'
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -21,40 +21,117 @@ const PAGE_TRANSITION = {
 }
 
 function FloatingNav({ currentScreen, onNavigate }: { currentScreen: Screen | 'landing', onNavigate: (s: Screen) => void }) {
-  if (currentScreen !== 'home' && currentScreen !== 'profile') return null;
+  if (currentScreen === 'landing' || currentScreen === 'auth' || currentScreen === 'donate') return null;
   
+  const navItems = [
+    { id: 'home' as Screen, icon: Home, label: 'Journal' },
+    { id: 'cause' as Screen, icon: Compass, label: 'Discover' },
+    { id: 'timeline' as Screen, icon: Clock, label: 'Journeys' },
+    { id: 'profile' as Screen, icon: User, label: 'Profile' },
+  ];
+
   return (
-    <motion.div 
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.5, duration: 0.8, ease: EASE }}
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-2 bg-white/80 backdrop-blur-xl border border-black/5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
-    >
-      {[
-        { id: 'home', icon: Home, label: 'Journal' },
-        { id: 'profile', icon: User, label: 'Profile' }
-      ].map((item) => (
-        <button
-          key={item.id}
-          onClick={() => onNavigate(item.id as Screen)}
-          className={`relative flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-500 ease-out ${
-            currentScreen === item.id
-              ? 'text-white' 
-              : 'text-neutral-500 hover:text-black hover:bg-black/5'
-          }`}
+    <>
+      {/* DESKTOP TOP HEADER NAVIGATION */}
+      <motion.header
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: EASE }}
+        className="hidden md:flex fixed top-0 left-0 right-0 h-20 bg-[#FAFAF7]/85 backdrop-blur-md border-b border-black/5 z-40 items-center justify-between px-12"
+      >
+        {/* Brand Logo */}
+        <div 
+          onClick={() => onNavigate('home')} 
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
         >
-          { currentScreen === item.id && (
-            <motion.div
-              layoutId="nav-pill"
-              className="absolute inset-0 animate-rainbow bg-[linear-gradient(90deg,hsl(var(--color-1)),hsl(var(--color-5)),hsl(var(--color-3)),hsl(var(--color-4)),hsl(var(--color-2)))] bg-[length:200%] rounded-full"
-              transition={{ type: 'spring', bounce: 0.15, duration: 0.6 }}
-            />
-          )}
-          <span className="relative z-10 font-medium text-sm tracking-wide">{item.label}</span>
-        </button>
-      ))}
-    </motion.div>
-  )
+          <span className="font-bold text-3xl font-calligraphy italic text-[#1D1D1F] tracking-tight">
+            Echoes
+          </span>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="flex items-center gap-1.5 p-1 bg-neutral-200/40 border border-black/5 rounded-full">
+          {navItems.map((item) => {
+            const active = currentScreen === item.id;
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => onNavigate(item.id)}
+                className={`relative flex items-center gap-2 px-5 py-2 rounded-full transition-all duration-300 ease-out font-sans font-medium text-sm tracking-wide ${
+                  active ? 'text-white' : 'text-[#1D1D1F]/60 hover:text-[#1D1D1F]'
+                }`}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="desktop-nav-pill"
+                    className="absolute inset-0 bg-[#2C5530] rounded-full shadow-[0_4px_12px_rgba(44,85,48,0.15)]"
+                    transition={{ type: 'spring', bounce: 0.12, duration: 0.5 }}
+                  />
+                )}
+                <Icon size={16} className="relative z-10" />
+                <span className="relative z-10">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* User Badge */}
+        <div className="w-24 flex justify-end">
+          <div 
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2C5530] to-[#142A17] flex items-center justify-center text-white text-sm font-serif shadow-sm cursor-pointer hover:scale-105 transition-transform" 
+            onClick={() => onNavigate('profile')}
+          >
+            E
+          </div>
+        </div>
+      </motion.header>
+
+      {/* MOBILE BOTTOM NAVIGATION BAR */}
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="flex md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#FAFAF7]/95 backdrop-blur-2xl border-t border-black/5 z-40 items-center justify-around px-4 pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.03)]"
+      >
+        {navItems.map((item) => {
+          const active = currentScreen === item.id;
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className="flex flex-col items-center justify-center flex-1 py-1.5 transition-all duration-300 relative"
+            >
+              <div className="relative flex items-center justify-center">
+                <Icon
+                  size={20}
+                  className={`transition-colors duration-300 ${
+                    active ? 'text-[#2C5530]' : 'text-[#1D1D1F]/40'
+                  }`}
+                  strokeWidth={active ? 2.2 : 1.8}
+                />
+                {active && (
+                  <motion.div
+                    layoutId="mobile-nav-dot"
+                    className="absolute -bottom-1.5 w-1 h-1 bg-[#2C5530] rounded-full"
+                    transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+                  />
+                )}
+              </div>
+              <span
+                className={`text-[10px] font-sans mt-1 tracking-wide font-medium transition-colors duration-300 ${
+                  active ? 'text-[#2C5530]' : 'text-[#1D1D1F]/40'
+                }`}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </motion.div>
+    </>
+  );
 }
 
 export default function App() {

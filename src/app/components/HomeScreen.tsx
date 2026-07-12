@@ -35,7 +35,7 @@ export function HomeScreen({ onSelectCause }: HomeScreenProps) {
       {/* Header */}
       <motion.div 
         style={{ y: headerY, opacity: headerOpacity }}
-        className="pt-24 px-8 md:px-12 lg:px-24 max-w-5xl mx-auto"
+        className="pt-24 md:pt-36 px-8 md:px-12 lg:px-24 max-w-5xl mx-auto"
       >
         <p className="text-[#1D1D1F]/50 font-medium tracking-wide text-sm md:text-base uppercase mb-4">
           {greeting}, {(user?.displayName || USER.name).split(' ')[0]}

@@ -15,15 +15,15 @@ export function MemoryBookHero({ onEnter }: { onEnter?: () => void }) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
   return (
-    <div ref={ref} className="relative w-full h-[120vh] bg-black overflow-hidden flex items-center justify-center font-sans">
+    <div ref={ref} className="relative w-full min-h-screen md:h-screen bg-black overflow-hidden flex items-center justify-center font-sans">
       {/* Background Floating Images with Parallax & Circular/Oval Floating Drift */}
       {HERO_IMAGES.map((img, i) => {
         // Parallax effect combined with custom circular/wave drift
-        const yParallax = useTransform(scrollYProgress, [0, 1], [0, img.yOffset * 1.5]);
+        const yParallax = useTransform(scrollYProgress, [0, 1], [0, img.yOffset * 1.2]);
         return (
           <motion.div
             key={i}
-            className="absolute rounded-[32px] overflow-hidden shadow-2xl pointer-events-none select-none opacity-80"
+            className="hidden sm:block absolute rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl pointer-events-none select-none opacity-40 md:opacity-75"
             style={{
               top: img.top,
               left: img.left,
@@ -32,46 +32,46 @@ export function MemoryBookHero({ onEnter }: { onEnter?: () => void }) {
             }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ 
-              opacity: 0.85, 
+              opacity: 0.75, 
               scale: 1,
-              x: [0, Math.cos(i) * 25, -Math.sin(i) * 25, 0],
-              y: [0, Math.sin(i) * 25, Math.cos(i) * 25, 0],
-              rotate: [img.rotate, img.rotate + 3, img.rotate - 3, img.rotate],
+              x: [0, Math.cos(i) * 20, -Math.sin(i) * 20, 0],
+              y: [0, Math.sin(i) * 20, Math.cos(i) * 20, 0],
+              rotate: [img.rotate, img.rotate + 2, img.rotate - 2, img.rotate],
             }}
             transition={{
               opacity: { duration: 1.5, delay: i * 0.1 },
               scale: { duration: 1.5, delay: i * 0.1 },
-              x: { duration: 14 + i * 2, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 14 + i * 2, repeat: Infinity, ease: "easeInOut" },
-              rotate: { duration: 18 + i * 3, repeat: Infinity, ease: "easeInOut" },
+              x: { duration: 16 + i * 2, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 16 + i * 2, repeat: Infinity, ease: "easeInOut" },
+              rotate: { duration: 20 + i * 3, repeat: Infinity, ease: "easeInOut" },
             }}
           >
             <div className="aspect-[4/5] w-full h-full bg-neutral-900">
-              <img src={img.url} className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.1]" alt="Memory" />
+              <img src={img.url} className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.1]" alt="Memory" />
             </div>
           </motion.div>
         );
       })}
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/90 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/90 pointer-events-none" />
 
       {/* Center Content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-5xl">
+      <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-4xl py-12 md:py-0">
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="text-white/60 tracking-[0.3em] text-sm md:text-base font-semibold uppercase mb-8"
+          transition={{ duration: 1, delay: 0.4 }}
+          className="text-white/50 tracking-[0.25em] text-xs md:text-sm font-semibold uppercase mb-4 md:mb-6"
         >
           The Sound of Impact
         </motion.p>
         
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.7 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-calligraphy text-white leading-[1.1] tracking-tight mb-12"
-          style={{ textShadow: "0 10px 40px rgba(0,0,0,0.8)" }}
+          transition={{ duration: 1.2, delay: 0.6 }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white leading-[1.15] tracking-tight mb-8 md:mb-10"
+          style={{ textShadow: "0 8px 32px rgba(0,0,0,0.7)" }}
         >
           The cosmos is within us.
           <br />
@@ -86,7 +86,7 @@ export function MemoryBookHero({ onEnter }: { onEnter?: () => void }) {
           onClick={onEnter}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="bg-white text-black px-8 py-3.5 rounded-full font-sans font-medium text-base md:text-lg flex items-center gap-2.5 shadow-[0_8px_30px_rgba(255,255,255,0.12)] hover:bg-neutral-50 hover:shadow-[0_12px_40px_rgba(255,255,255,0.25)] transition-all duration-300 z-20 pointer-events-auto border border-white/5"

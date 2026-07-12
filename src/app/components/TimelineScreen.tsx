@@ -15,7 +15,7 @@ export function TimelineScreen({ cause, onBack, onDonate }: TimelineScreenProps)
   return (
     <div className="w-full min-h-screen bg-[#FAFAF7] text-[#1D1D1F]">
       {/* Sticky Header */}
-      <div className="fixed top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#FAFAF7] to-transparent z-50 flex items-center px-6 md:px-12">
+      <div className="fixed top-0 md:top-20 left-0 right-0 h-24 bg-gradient-to-b from-[#FAFAF7] to-transparent z-30 flex items-center px-6 md:px-12">
         <button
           onClick={onBack}
           className="w-12 h-12 bg-white/80 backdrop-blur-xl border border-black/5 rounded-full flex items-center justify-center text-[#1D1D1F] hover:bg-white transition-colors shadow-sm"
@@ -24,7 +24,7 @@ export function TimelineScreen({ cause, onBack, onDonate }: TimelineScreenProps)
         </button>
       </div>
 
-      <div className="pt-32 pb-48 max-w-5xl mx-auto px-6 md:px-12">
+      <div className="pt-32 md:pt-48 pb-48 max-w-5xl mx-auto px-6 md:px-12">
         
         <div className="mb-24 text-center">
           <p className="text-sm font-semibold tracking-widest text-[#1D1D1F]/40 uppercase mb-4">
