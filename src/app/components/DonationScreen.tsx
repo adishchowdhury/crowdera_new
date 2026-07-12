@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Check, Sparkles } from 'lucide-react'
+import { ArrowLeft, Check, Sparkles } from 'lucide-react';
+import { RainbowButton } from './RainbowButton';
 import type { Cause } from '../data'
 
 interface DonationScreenProps {
@@ -125,31 +126,27 @@ export function DonationScreen({ cause, onBack, onSuccess }: DonationScreenProps
                 <p className="text-sm text-white/80">You're part of this journey now.</p>
               </motion.div>
             ) : (
-              <motion.button
+              <RainbowButton
                 key="pay"
-                whileTap={!paying ? { scale: 0.98 } : {}}
                 onClick={handlePay}
                 disabled={paying || amount <= 0}
-                className={`w-full py-6 rounded-full font-medium text-lg tracking-wide shadow-[0_16px_40px_rgba(44,85,48,0.25)] flex items-center justify-center gap-3 transition-all
-                  ${paying ? 'bg-[#2C5530]/80 text-white cursor-default' : amount <= 0 ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed shadow-none' : 'bg-[#2C5530] text-white hover:bg-[#234526] hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(44,85,48,0.35)]'}
-                `}
+                className="w-full py-7 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.06)]"
               >
                 {paying ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
                     />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Sparkles size={20} className="fill-current opacity-80" />
                     {amount > 0 ? `Give ₹${amount.toLocaleString()}` : 'Select Amount'}
                   </>
                 )}
-              </motion.button>
+              </RainbowButton>
             )}
           </AnimatePresence>
           <p className="text-xs text-[#1D1D1F]/40 text-center mt-6">
