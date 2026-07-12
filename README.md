@@ -1,7 +1,8 @@
 
-  # Relationship app design
+ 
 
-  This is a code bundle for Relationship app design. The original project is available at https://www.figma.com/design/Ogi7qweVTAqk1qNxFUdsM7/Relationship-app-design.
+  The CONCEPT OF THIS project is available at https://www.figma.com/design/Ogi7qweVTAqk1qNxFUdsM7/Relationship-app-design.
+  ## Live deployment- https://crowdera-new.vercel.app/
 
   ## Running the code
 
