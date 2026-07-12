@@ -1,7 +1,14 @@
-import { useState } from 'react'
-import { motion } from 'motion/react'
-import { ArrowLeft, MapPin, ChevronRight, Bookmark } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { ArrowLeft, MapPin, ChevronRight, Bookmark, Eye, Heart } from 'lucide-react'
 import type { Cause } from '../data'
+import { 
+  incrementCauseViews, 
+  incrementCauseHearts, 
+  decrementCauseHearts, 
+  subscribeCauseStats, 
+  StatsData 
+} from '../../lib/stats'
 
 interface CauseDetailScreenProps {
   cause: Cause
@@ -12,6 +19,41 @@ interface CauseDetailScreenProps {
 
 export function CauseDetailScreen({ cause, onBack, onDonate, onTimeline }: CauseDetailScreenProps) {
   const [imgLoaded, setImgLoaded] = useState(false)
+  const [isHearted, setIsHearted] = useState(false)
+  const [stats, setStats] = useState<StatsData>({ views: 0, hearts: 0 })
+  const [heartsBurst, setHeartsBurst] = useState<{ id: number; x: number }[]>([]);
+
+  useEffect(() => {
+    // Check local storage for hearted state
+    const localKey = `cause_hearted_${cause.id}`;
+    setIsHearted(localStorage.getItem(localKey) === 'true');
+
+    // Increment cause views on mount
+    incrementCauseViews(cause.id);
+
+    // Subscribe to cause-specific stats
+    const unsubscribe = subscribeCauseStats(cause.id, (data) => {
+      setStats(data);
+    });
+
+    return () => unsubscribe();
+  }, [cause.id]);
+
+  const handleHeartClick = async () => {
+    setIsHearted(true);
+    const localKey = `cause_hearted_${cause.id}`;
+    localStorage.setItem(localKey, 'true');
+
+    // Add a floating heart
+    const id = Date.now() + Math.random();
+    const x = (Math.random() - 0.5) * 40;
+    setHeartsBurst(prev => [...prev, { id, x }]);
+    setTimeout(() => {
+      setHeartsBurst(prev => prev.filter(h => h.id !== id));
+    }, 1200);
+
+    await incrementCauseHearts(cause.id);
+  };
 
   return (
     <div className="w-full min-h-screen bg-[#FAFAF7] pb-32 pt-0 md:pt-20">
@@ -49,13 +91,49 @@ export function CauseDetailScreen({ cause, onBack, onDonate, onTimeline }: Cause
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="bg-white rounded-[32px] p-8 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.06)]"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <span className="px-4 py-1.5 rounded-full bg-[#FAFAF7] text-[#1D1D1F]/60 text-xs font-semibold tracking-wide uppercase border border-black/5">
-              {cause.tag}
-            </span>
-            <span className="flex items-center gap-1.5 text-xs font-medium text-[#1D1D1F]/40">
-              <MapPin size={14} /> {cause.location}
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="px-4 py-1.5 rounded-full bg-[#FAFAF7] text-[#1D1D1F]/60 text-xs font-semibold tracking-wide uppercase border border-black/5">
+                {cause.tag}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-[#1D1D1F]/40">
+                <MapPin size={14} /> {cause.location}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-[#1D1D1F]/40">
+                <Eye size={14} /> {stats.views.toLocaleString()} views
+              </span>
+            </div>
+            
+            {/* Heart Button */}
+            <div className="relative">
+              <button 
+                onClick={handleHeartClick}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border text-xs font-semibold tracking-wide transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                  isHearted 
+                    ? 'bg-red-500/10 text-red-500 border-red-500/30 shadow-[0_4px_12px_rgba(239,68,68,0.1)]' 
+                    : 'bg-white text-[#1D1D1F]/60 border-black/5 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20 shadow-sm'
+                }`}
+              >
+                <Heart size={14} className={isHearted ? 'fill-current' : ''} />
+                <span>{stats.hearts}</span>
+              </button>
+
+              {/* Floating hearts container */}
+              <AnimatePresence>
+                {heartsBurst.map((h) => (
+                  <motion.div
+                    key={h.id}
+                    initial={{ y: 0, opacity: 1, scale: 0.8 }}
+                    animate={{ y: -60, opacity: 0, scale: 1.3, x: h.x, rotate: h.x * 0.5 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 text-red-500 pointer-events-none"
+                  >
+                    <Heart size={14} className="fill-current" />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-serif font-medium text-[#1D1D1F] leading-[1.1] tracking-tight mb-8">

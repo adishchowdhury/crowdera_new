@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "GlobalStats": {
+      "title": "GlobalStats",
+      "description": "Global website statistics.",
+      "type": "object",
+      "properties": {
+        "views": {
+          "type": "number",
+          "description": "Total global page views"
+        },
+        "hearts": {
+          "type": "number",
+          "description": "Total global heart count"
+        }
+      },
+      "required": ["views", "hearts"]
+    },
+    "CauseStats": {
+      "title": "CauseStats",
+      "description": "Statistics for an individual cause.",
+      "type": "object",
+      "properties": {
+        "views": {
+          "type": "number",
+          "description": "Total views for this cause"
+        },
+        "hearts": {
+          "type": "number",
+          "description": "Total hearts for this cause"
+        }
+      },
+      "required": ["views", "hearts"]
+    }
+  },
+  "firestore": {
+    "/global_stats/{docId}": {
+      "schema": "GlobalStats",
+      "description": "Collection containing global stats doc"
+    },
+    "/cause_stats/{causeId}": {
+      "schema": "CauseStats",
+      "description": "Collection containing stats for each cause"
+    }
+  }
+}

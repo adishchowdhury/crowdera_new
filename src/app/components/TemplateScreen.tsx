@@ -1,8 +1,15 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { ArrowRight, Globe, Heart, Users, Sun, Moon } from "lucide-react";
 import { MemoryBookHero } from "./MemoryBookHero";
 import { RainbowButton } from "./RainbowButton";
+import { 
+  incrementGlobalViews, 
+  incrementGlobalHearts, 
+  decrementGlobalHearts, 
+  subscribeGlobalStats, 
+  StatsData 
+} from "../../lib/stats";
 
 const HUMANS = [
   { name: "Maya's Education", sci: "Rural Kenya", img: "https://images.unsplash.com/photo-1507513583-1348b7b8a7d2?w=800&auto=format&fit=crop&q=80", photo: "Desola Lanre-Ologun" },
@@ -63,31 +70,34 @@ function HumanGallery() {
   )
 }
 
-function Stats({ isDark }: { isDark: boolean }) {
+function Stats({ isDark, stats }: { isDark: boolean; stats: StatsData }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
+  const statItems = [
+    { label: "Real-time Views", value: stats.views.toLocaleString() },
+    { label: "Hearts Received", value: stats.hearts.toLocaleString() },
+    { label: "Beneficiaries Served", value: "2M+" },
+    { label: "Active Projects", value: "142" },
+    { label: "Countries Reached", value: "35" }
+  ];
+
   return (
     <section ref={ref} className={`py-28 transition-colors duration-700 overflow-hidden ${isDark ? 'bg-black' : 'bg-[#FAFAF7]'}`}>
       <motion.div style={{ y }} className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className={`grid grid-cols-1 md:grid-cols-4 gap-12 text-center divide-y md:divide-y-0 md:divide-x ${isDark ? 'divide-white/10' : 'divide-black/10'}`}>
-          {[
-            { label: "Beneficiaries Served", value: "2M+" },
-            { label: "Global Volunteers", value: "15K" },
-            { label: "Active Projects", value: "142" },
-            { label: "Countries Reached", value: "35" }
-          ].map((stat, i) => (
-            <div key={i} className="pt-8 md:pt-0 px-4 group">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 text-center divide-y sm:divide-y-0 lg:divide-y-0 lg:divide-x ${isDark ? 'divide-white/10' : 'divide-black/10'}`}>
+          {statItems.map((stat, i) => (
+            <div key={i} className="pt-8 sm:pt-0 lg:pt-0 px-4 group">
               <motion.h4 
                 initial={{ scale: 0.9, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", bounce: 0.5, delay: i * 0.1 }}
-                className={`text-7xl md:text-8xl font-calligraphy italic font-normal mb-3 transition-colors ${isDark ? 'text-white' : 'text-[#1D1D1F]'}`}
+                className={`text-6xl md:text-7xl font-calligraphy italic font-normal mb-3 transition-colors ${isDark ? 'text-white' : 'text-[#1D1D1F]'}`}
               >
                 {stat.value}
               </motion.h4>
-              <p className={`uppercase tracking-[0.25em] text-xs font-semibold font-sans transition-colors ${isDark ? 'text-white/50' : 'text-[#1D1D1F]/50'}`}>{stat.label}</p>
+              <p className={`uppercase tracking-[0.25em] text-[10px] font-semibold font-sans transition-colors ${isDark ? 'text-white/50' : 'text-[#1D1D1F]/50'}`}>{stat.label}</p>
             </div>
           ))}
         </div>
@@ -133,6 +143,40 @@ function ParallaxImageCard({ program, index, isDark }: { program: any; index: nu
 
 export function TemplateScreen({ onEnter }: { onEnter?: () => void }) {
   const [isDark, setIsDark] = useState(false);
+  const [isGlobalHearted, setIsGlobalHearted] = useState(false);
+  const [globalStats, setGlobalStats] = useState<StatsData>({ views: 0, hearts: 0 });
+  const [globalHeartsBurst, setGlobalHeartsBurst] = useState<{ id: number; x: number }[]>([]);
+
+  useEffect(() => {
+    // Check local storage for hearted state
+    const hearted = localStorage.getItem('global_hearted') === 'true';
+    setIsGlobalHearted(hearted);
+
+    // Increment global view count
+    incrementGlobalViews();
+
+    // Subscribe to global stats real-time
+    const unsubscribe = subscribeGlobalStats((data) => {
+      setGlobalStats(data);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleGlobalHeartClick = async () => {
+    setIsGlobalHearted(true);
+    localStorage.setItem('global_hearted', 'true');
+    
+    // Add a floating heart
+    const id = Date.now() + Math.random();
+    const x = (Math.random() - 0.5) * 40;
+    setGlobalHeartsBurst(prev => [...prev, { id, x }]);
+    setTimeout(() => {
+      setGlobalHeartsBurst(prev => prev.filter(h => h.id !== id));
+    }, 1200);
+
+    await incrementGlobalHearts();
+  };
 
   return (
     <div className={`w-full min-h-screen transition-colors duration-700 ${isDark ? 'dark bg-black text-white' : 'bg-[#FAFAF7] text-[#1D1D1F]'} selection:bg-purple-500 selection:text-white font-sans`}>
@@ -165,7 +209,7 @@ export function TemplateScreen({ onEnter }: { onEnter?: () => void }) {
       {/* Hero Memory Book Component */}
       <MemoryBookHero onEnter={onEnter} />
 
-      <Stats isDark={isDark} />
+      <Stats isDark={isDark} stats={globalStats} />
 
       {/* Programs */}
       <section className={`py-32 transition-colors duration-700 relative overflow-hidden ${isDark ? 'bg-black' : 'bg-[#FAFAF7]'}`}>
@@ -206,11 +250,38 @@ export function TemplateScreen({ onEnter }: { onEnter?: () => void }) {
               <span className="font-bold text-5xl tracking-tight font-calligraphy">Echoes</span>
             </div>
             <p className="text-white/50 text-xl max-w-sm mb-12 leading-relaxed">Capturing the profound stories of human impact across the globe.</p>
-            <div className="flex gap-4">
-              <button className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all">
-                <Heart className="w-6 h-6" />
-              </button>
-              <button className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 relative">
+                <button 
+                  onClick={handleGlobalHeartClick}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer ${
+                    isGlobalHearted ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                >
+                  <Heart className={`w-6 h-6 ${isGlobalHearted ? 'fill-current' : ''}`} />
+                </button>
+
+                {/* Floating hearts container */}
+                <AnimatePresence>
+                  {globalHeartsBurst.map((h) => (
+                    <motion.div
+                      key={h.id}
+                      initial={{ y: 0, opacity: 1, scale: 0.8 }}
+                      animate={{ y: -80, opacity: 0, scale: 1.3, x: h.x, rotate: h.x * 0.5 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1.2, ease: "easeOut" }}
+                      className="absolute bottom-16 left-4 text-red-500 pointer-events-none"
+                    >
+                      <Heart className="w-6 h-6 fill-current" />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                <span className="text-white/60 text-sm font-mono min-w-[20px]">
+                  {globalStats.hearts}
+                </span>
+              </div>
+              <button className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all cursor-pointer">
                 <Users className="w-6 h-6" />
               </button>
             </div>

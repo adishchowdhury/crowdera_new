@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Global Stats Rules
+    match /global_stats/{docId} {
+      allow read: if true;
+      allow create: if isValidId(docId) && request.resource.data.views is number && request.resource.data.hearts is number;
+      allow update: if request.resource.data.views is number && request.resource.data.hearts is number;
+    }
+
+    // Cause Stats Rules
+    match /cause_stats/{causeId} {
+      allow read: if true;
+      allow create: if isValidId(causeId) && request.resource.data.views is number && request.resource.data.hearts is number;
+      allow update: if request.resource.data.views is number && request.resource.data.hearts is number;
+    }
+  }
+}
